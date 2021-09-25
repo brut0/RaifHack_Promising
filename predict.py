@@ -42,6 +42,14 @@ if __name__ == "__main__":
         logger.info(f'Input shape: {test_df.shape}')
         test_df = prepare_categorical(test_df)
 
+        type_city_list = []
+        for type_city in test_df['type_city']:
+            if type_city == 'г':
+                type_city_list.append(1)
+            else:
+                type_city_list.append(0)
+        test_df['type_city'] = type_city_list
+
         logger.info('Load model')
         model = BenchmarkModel.load(args['mp'])
         logger.info('Predict')

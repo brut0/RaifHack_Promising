@@ -5,6 +5,8 @@ import numpy as np
 import logging
 
 from lightgbm import LGBMRegressor
+#from xgboost import XGBRegressor
+from catboost import CatBoostRegressor
 from sklearn.ensemble import RandomForestRegressor
 
 from sklearn.compose import ColumnTransformer
@@ -51,6 +53,7 @@ class BenchmarkModel():
              self.ste_cat_features)])
 
         self.model = LGBMRegressor(**model_params)
+        #self.model = CatBoostRegressor(**model_params)
         #self.model = RandomForestRegressor(**model_params)
 
         self.pipeline = Pipeline(steps=[

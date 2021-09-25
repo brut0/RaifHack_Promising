@@ -166,3 +166,98 @@ def prepare_historic(df: pd.DataFrame) -> pd.DataFrame:
                                                           & (x['osm_historic_points_in_0.01'] > 10)) else 0, axis=1)
 
     return df_new
+
+
+def add_metro(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Создание признака наличия метро
+    :param df: dataframe, обучающая выборка
+    :return: dataframe
+    """
+    new_df = df.copy()
+    metro_cities = ['Москва', 'Санкт-Петербург', 'Казань', 'Екатеринбург', 'Нижний Новгород', 'Новосибирск', 'Самара']
+    # train
+    is_metro = []
+    for city in new_df['city']:
+        if city in metro_cities:
+            is_metro.append(1)
+        else:
+            is_metro.append(0)
+    new_df['is_metro'] = is_metro
+
+    new_osm_subway_closest_dist = []
+    subway_500 = []
+    subway_1000 = []
+    subway_2000 = []
+    for dist, metro_bool in zip(new_df['osm_subway_closest_dist'], new_df['is_metro']):
+        if is_metro == 0:
+            new_osm_subway_closest_dist.append(0)
+        elif dist > 3:
+            new_osm_subway_closest_dist.append(0.33)
+        elif dist < 0.1:
+            new_osm_subway_closest_dist.append(10)
+        else:
+            new_osm_subway_closest_dist.append(1 / dist)
+
+        if dist < 0.5:
+            subway_500.append(1)
+            subway_1000.append(1)
+            subway_2000.append(1)
+        elif dist < 1:
+            subway_500.append(0)
+            subway_1000.append(1)
+            subway_2000.append(1)
+        elif dist < 2:
+            subway_500.append(0)
+            subway_1000.append(0)
+            subway_2000.append(1)
+        else:
+            subway_500.append(0)
+            subway_1000.append(0)
+            subway_2000.append(0)
+
+    new_df['osm_subway_closest_dist'] = new_osm_subway_closest_dist
+    new_df['subway_500'] = subway_500
+    new_df['subway_1000'] = subway_1000
+    new_df['subway_2000'] = subway_2000
+
+    return new_df
+
+def change_region(df):
+    new_df = df.copy()
+    change_region_dict = {
+        'Адыгея':'Республика Адыгея',
+        'Татарстан':'Республика Татарстан',
+        'Мордовия': 'Республика Мордовия',
+        'Коми': 'Республика Коми',
+        'Карелия': 'Республика Карелия',
+        'Башкортостан': 'Республика Башкортостан',
+        'Ханты-Мансийский АО':'Ханты-Мансийский автономный округ - Югра',
+        'Удмуртия':'Удмуртская республика'
+    }
+
+    change_city_dict = {
+        'Иркутский район, Маркова рп, Зеленый Берег мкр':'Маркова',
+        'Иркутский район, Маркова рп, Стрижи кв-л':'Маркова',
+        'город Светлый':'Светлый',
+        'Орел':'Орёл'
+    }
+
+
+    def custom_func(region,city):
+        if (region == 'Ленинградская область') and (city=='Санкт-Петербург'):
+            return 'Санкт-Петербург'
+        if (region == 'Тюменская область') and (city=='Нижневартовск'):
+            return 'Ханты-Мансийский автономный округ - Югра'
+        if (region == 'Тюменская область') and (city=='Сургут'):
+            return 'Ханты-Мансийский автономный округ - Югра'
+        return region
+
+    for err, new in zip(list(change_city_dict.keys()),list(change_city_dict.values())):
+        new_df.replace(err, new, inplace=True)
+
+    for err, new in zip(list(change_region_dict.keys()),list(change_region_dict.values())):
+        new_df.replace(err, new, inplace=True)
+        new_df['region'] = new_df.apply(lambda x: custom_func(x['region'],x['city']),axis=1)
+
+    return new_df

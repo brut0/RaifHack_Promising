@@ -1,7 +1,7 @@
 TARGET = 'per_square_meter_price'
 # признаки (или набор признаков), для которых применяем smoothed target encoding
 CATEGORICAL_STE_FEATURES = ['region', 'city', 'realty_type', 'floor_cat', 'floor', 'building_cat', 'square_cat',
-                            'amenity_cat', 'historic_cat']
+                            'amenity_cat', 'historic_cat', 'subway_500', 'subway_1000', 'subway_2000']
 
 # признаки, для которых применяем one hot encoding
 #CATEGORICAL_OHE_FEATURES = ['square_cat']
@@ -44,18 +44,43 @@ NUM_FEATURES = ['lat', 'lng', 'osm_amenity_points_in_0.001',
        'reform_mean_year_building_1000', 'reform_mean_year_building_500','total_square',
        'salary_to_product', 'poor', 'very_poor']
 
+MODEL_XGB_PARAMS = dict (
+    booster='gbtree',
+    eval_metric="rmse",
+    n_estimators=5000,
+    learning_rate=0.05,
+    reg_lambda=5,
+    reg_alpha=20,
+    subsample=0.9,
+    #colsample_bytree=0.12,
+    #max_depth=3,
+    random_state=3407
+)
+
+MODEL_CB_PARAMS = dict (
+    loss_function='RMSE',
+    eval_metric='RMSE',
+    depth=7,
+    l2_leaf_reg=4.2,
+    od_type='IncToDec',
+    #bagging_temperature=290,
+    iterations=5000,
+    thread_count=4,
+    random_seed=3407
+)
+
 MODEL_PARAMS = dict(
-            n_estimators=4000,
-            learning_rate=0.005,
-            reg_alpha=4,
-            num_leaves=40,
-            min_child_samples=5,
-            max_bin=130,
-            subsample=0.9,
-            importance_type="gain",
-            n_jobs=-1,
-            random_state=563,
-        )
+    n_estimators=4000,
+    learning_rate=0.005,
+    reg_alpha=4,
+    num_leaves=80,
+    min_child_samples=5,
+    max_bin=130,
+    subsample=0.9,
+    importance_type="gain",
+    n_jobs=-1,
+    random_state=563,
+)
 
 MODEL_RF_PARAMS = dict(
     n_estimators=500,

@@ -8,7 +8,7 @@ from raif_hack.settings import MODEL_PARAMS, LOGGING_CONFIG, NUM_FEATURES, CATEG
     CATEGORICAL_STE_FEATURES, TARGET
 from raif_hack.utils import PriceTypeEnum
 from raif_hack.metrics import metrics_stat
-from raif_hack.features import prepare_categorical
+from raif_hack.features import prepare_categorical, prepare_floor
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
@@ -43,14 +43,7 @@ if __name__ == "__main__":
         train_df = pd.read_csv(args['d'])
         logger.info(f'Input shape: {train_df.shape}')
         train_df = prepare_categorical(train_df)
-
-        type_city_list = []
-        for type_city in train_df['type_city']:
-            if type_city == 'г':
-                type_city_list.append(1)
-            else:
-                type_city_list.append(0)
-        train_df['type_city'] = type_city_list
+        train_df = prepare_floor(train_df)
 
         X_offer = train_df[train_df.price_type == PriceTypeEnum.OFFER_PRICE][
             NUM_FEATURES + CATEGORICAL_OHE_FEATURES + CATEGORICAL_STE_FEATURES]

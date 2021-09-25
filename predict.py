@@ -1,7 +1,8 @@
 import argparse
 import logging.config
 import pandas as pd
-from raif_hack.features import prepare_categorical, prepare_floor
+from raif_hack.features import prepare_categorical, prepare_floor, add_economic, prepare_square, prepare_building, \
+    prepare_amenity, prepare_historic
 from traceback import format_exc
 
 from raif_hack.model import BenchmarkModel
@@ -40,8 +41,14 @@ if __name__ == "__main__":
         logger.info('Load test df')
         test_df = pd.read_csv(args['d'])
         logger.info(f'Input shape: {test_df.shape}')
+        test_df = prepare_square(test_df)
+        test_df = prepare_building(test_df)
+        test_df = prepare_amenity(test_df)
+        test_df = prepare_historic(test_df)
         test_df = prepare_categorical(test_df)
         test_df = prepare_floor(test_df)
+        test_df = add_economic(test_df)
+        logger.info(f'Preprocessed shape: {test_df.shape}')
 
         logger.info('Load model')
         model = BenchmarkModel.load(args['mp'])

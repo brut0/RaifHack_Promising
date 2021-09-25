@@ -4,11 +4,12 @@ import pandas as pd
 from traceback import format_exc
 
 from raif_hack.model import BenchmarkModel
-from raif_hack.settings import MODEL_PARAMS, LOGGING_CONFIG, NUM_FEATURES, CATEGORICAL_OHE_FEATURES, \
+from raif_hack.settings import MODEL_PARAMS,MODEL_RF_PARAMS, LOGGING_CONFIG, NUM_FEATURES, CATEGORICAL_OHE_FEATURES, \
     CATEGORICAL_STE_FEATURES, TARGET
 from raif_hack.utils import PriceTypeEnum
 from raif_hack.metrics import metrics_stat
-from raif_hack.features import prepare_categorical, prepare_floor
+from raif_hack.features import prepare_categorical, prepare_floor, add_economic, prepare_square, prepare_building, \
+    prepare_amenity, prepare_historic
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
@@ -42,8 +43,14 @@ if __name__ == "__main__":
         logger.info('Load train df')
         train_df = pd.read_csv(args['d'])
         logger.info(f'Input shape: {train_df.shape}')
+        train_df = prepare_square(train_df)
+        train_df = prepare_building(train_df)
+        train_df = prepare_amenity(train_df)
+        train_df = prepare_historic(train_df)
         train_df = prepare_categorical(train_df)
         train_df = prepare_floor(train_df)
+        train_df = add_economic(train_df)
+        logger.info(f'Preprocessed shape: {train_df.shape}')
 
         X_offer = train_df[train_df.price_type == PriceTypeEnum.OFFER_PRICE][
             NUM_FEATURES + CATEGORICAL_OHE_FEATURES + CATEGORICAL_STE_FEATURES]

@@ -5,6 +5,7 @@ import numpy as np
 import logging
 
 from lightgbm import LGBMRegressor
+from sklearn.ensemble import RandomForestRegressor
 
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
@@ -50,6 +51,7 @@ class BenchmarkModel():
              self.ste_cat_features)])
 
         self.model = LGBMRegressor(**model_params)
+        #self.model = RandomForestRegressor(**model_params)
 
         self.pipeline = Pipeline(steps=[
             ('preprocessor', self.preprocessor),
@@ -89,6 +91,11 @@ class BenchmarkModel():
         logger.info('Find corr coefficient')
         self._find_corr_coefficient(X_manual, y_manual)
         logger.info(f'Corr coef: {self.corr_coef:.2f}')
+
+        feature_importance_df = pd.DataFrame(self.model.feature_importances_, index=X_offer.columns)
+        feature_importance_df = feature_importance_df / feature_importance_df.min()
+        feature_importance_df.sort_values(by=0, ascending=False).to_csv('./fi.csv')
+
         self.__is_fitted = True
 
     def predict(self, X: pd.DataFrame) -> np.array:

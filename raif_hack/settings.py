@@ -1,8 +1,10 @@
 TARGET = 'per_square_meter_price'
 # признаки (или набор признаков), для которых применяем smoothed target encoding
-CATEGORICAL_STE_FEATURES = ['region', 'city', 'realty_type', 'floor_cat', 'floor']
+CATEGORICAL_STE_FEATURES = ['region', 'city', 'realty_type', 'floor_cat', 'floor', 'building_cat', 'square_cat',
+                            'amenity_cat', 'historic_cat']
 
 # признаки, для которых применяем one hot encoding
+#CATEGORICAL_OHE_FEATURES = ['square_cat']
 CATEGORICAL_OHE_FEATURES = []
 
 # численные признаки
@@ -13,7 +15,7 @@ NUM_FEATURES = ['lat', 'lng', 'osm_amenity_points_in_0.001',
        'osm_building_points_in_0.01', 'osm_catering_points_in_0.001',
        'osm_catering_points_in_0.005', 'osm_catering_points_in_0.0075',
        'osm_catering_points_in_0.01', 'osm_city_closest_dist',
-      'osm_city_nearest_population',
+       'osm_city_nearest_population',
        'osm_crossing_closest_dist', 'osm_crossing_points_in_0.001',
        'osm_crossing_points_in_0.005', 'osm_crossing_points_in_0.0075',
        'osm_crossing_points_in_0.01', 'osm_culture_points_in_0.001',
@@ -39,10 +41,11 @@ NUM_FEATURES = ['lat', 'lng', 'osm_amenity_points_in_0.001',
        'reform_count_of_houses_1000', 'reform_count_of_houses_500',
        'reform_house_population_1000', 'reform_house_population_500',
        'reform_mean_floor_count_1000', 'reform_mean_floor_count_500',
-       'reform_mean_year_building_1000', 'reform_mean_year_building_500','total_square']
+       'reform_mean_year_building_1000', 'reform_mean_year_building_500','total_square',
+       'salary_to_product', 'poor', 'very_poor']
 
 MODEL_PARAMS = dict(
-            n_estimators=3500,
+            n_estimators=4000,
             learning_rate=0.005,
             reg_alpha=4,
             num_leaves=40,
@@ -53,6 +56,13 @@ MODEL_PARAMS = dict(
             n_jobs=-1,
             random_state=563,
         )
+
+MODEL_RF_PARAMS = dict(
+    n_estimators=500,
+    max_depth=6,
+    n_jobs=-1,
+    random_state=3407,
+)
 
 LOGGING_CONFIG = {
     "version": 1,
